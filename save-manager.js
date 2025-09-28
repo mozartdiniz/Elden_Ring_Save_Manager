@@ -750,6 +750,100 @@ class EldenRingSaveManager {
         // Update general checksum
         newGeneralChecksum.copy(buffer, generalChecksumStart);
     }
+
+    /**
+     * Get character name from a save slot
+     * @param {Buffer} buffer - Save file buffer
+     * @param {number} slotIndex - Character slot index (0-9)
+     * @returns {string|null} Character name or null if not found
+     */
+    getCharacterName(buffer, slotIndex) {
+        try {
+            // Character names are stored at offset 0x1901D0E, 588 bytes apart
+            const nameOffset = 0x1901D0E + (slotIndex * 588);
+
+            // Verify offset is within buffer bounds
+            if (nameOffset + 32 > buffer.length) {
+                return null;
+            }
+
+            // Read 32 bytes (UTF-16 encoded name)
+            const nameBytes = buffer.slice(nameOffset, nameOffset + 32);
+
+            // Convert from UTF-16 to string and remove null terminators
+            const name = nameBytes.toString('utf16le').replace(/\0/g, '');
+
+            return name || null;
+        } catch (error) {
+            console.error('Error getting character name:', error);
+            return null;
+        }
+    }
+
+    /**
+     * Set character name for a save slot
+     * @param {Buffer} buffer - Save file buffer
+     * @param {number} slotIndex - Character slot index (0-9)
+     * @param {string} newName - New character name (max 15 characters)
+     * @returns {Buffer} Modified buffer
+     */
+    setCharacterName(buffer, slotIndex, newName) {
+        try {
+            // Limit name to 15 characters
+            if (newName.length > 15) {
+                newName = newName.substring(0, 15);
+            }
+
+            // Get current character name to find all occurrences
+            const currentName = this.getCharacterName(buffer, slotIndex);
+            if (!currentName) {
+                throw new Error('Could not find current character name');
+            }
+
+            // Create a copy of the buffer to modify
+            const modifiedBuffer = Buffer.from(buffer);
+
+            // Convert names to UTF-16 bytes (without BOM)
+            const currentNameBytes = Buffer.from(currentName, 'utf16le');
+            const newNameBytes = Buffer.from(newName, 'utf16le');
+
+            // Pad new name to 32 bytes (same as current name storage)
+            const paddedNewNameBytes = Buffer.alloc(32, 0);
+            newNameBytes.copy(paddedNewNameBytes, 0, 0, Math.min(newNameBytes.length, 30)); // Leave 2 bytes for null terminator
+
+            // Find and replace all occurrences of the old name
+            let searchOffset = 0;
+            let replacementCount = 0;
+
+            while (searchOffset < modifiedBuffer.length - currentNameBytes.length) {
+                const foundIndex = modifiedBuffer.indexOf(currentNameBytes, searchOffset);
+
+                if (foundIndex === -1) {
+                    break;
+                }
+
+                // Replace the name at this location
+                // Check if this looks like a valid name location (32-byte boundary)
+                const nameLength = Math.min(paddedNewNameBytes.length, modifiedBuffer.length - foundIndex);
+                paddedNewNameBytes.copy(modifiedBuffer, foundIndex, 0, nameLength);
+
+                replacementCount++;
+                searchOffset = foundIndex + currentNameBytes.length;
+
+                // Safety check to prevent infinite loop
+                if (replacementCount > 300) {
+                    throw new Error('Too many name occurrences found - possible corruption');
+                }
+            }
+
+            // Recalculate checksums after name change
+            this.recalculateChecksums(modifiedBuffer);
+
+            return modifiedBuffer;
+        } catch (error) {
+            throw new Error(`Failed to set character name: ${error.message}`);
+        }
+    }
 }
 
 /**

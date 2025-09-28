@@ -608,10 +608,35 @@ body {
     margin-bottom: 1rem;
 }
 
-.character-name {
-    font-size: 1.25rem;
+.character-name-section {
+    margin-bottom: 1rem;
+}
+
+.character-name-section label {
+    display: block;
+    font-size: 0.9rem;
     font-weight: 600;
-    color: var(--text-primary);
+    color: var(--text-color);
+    margin-bottom: 0.25rem;
+}
+
+.character-name-input {
+    width: 100%;
+    max-width: 300px;
+    padding: 0.5rem;
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--card-bg);
+    color: var(--text-color);
+    font-size: 1rem;
+    font-weight: 600;
+    transition: border-color 0.2s ease;
+}
+
+.character-name-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
 }
 
 .character-level {

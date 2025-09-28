@@ -479,9 +479,17 @@ class EldenRingSaveManagerUI {
             this.currentCharacterStats = result.stats;
             this.originalStats = { ...result.stats.stats };
 
+            // Get character name
+            const nameResult = await window.electronAPI.getCharacterName({
+                saveFile: this.sourceSaveFile,
+                slotIndex: this.selectedSourceSave.index
+            });
+
+            const characterName = nameResult.success ? nameResult.name : `Character ${this.selectedSourceSave.index + 1}`;
+            this.originalCharacterName = characterName;
+
             // Update dialog with character info
-            const characterName = this.selectedSourceSave.characterName || `Character ${this.selectedSourceSave.index + 1}`;
-            document.getElementById('character-name').textContent = characterName;
+            document.getElementById('character-name-input').value = characterName;
             document.getElementById('character-level').textContent = `Level: ${result.stats.level}`;
 
             // Populate stat inputs
@@ -611,6 +619,23 @@ class EldenRingSaveManagerUI {
             // Update the source save file data
             this.sourceSaveFile = result.updatedSaveFile;
 
+            // Check if character name has changed and save it
+            const newCharacterName = document.getElementById('character-name-input').value.trim();
+            if (newCharacterName !== this.originalCharacterName && newCharacterName.length > 0) {
+                const nameResult = await window.electronAPI.setCharacterName({
+                    saveFile: this.sourceSaveFile,
+                    slotIndex: this.currentCharacterStats.slotIndex,
+                    newName: newCharacterName
+                });
+
+                if (!nameResult.success) {
+                    throw new Error(`Failed to update character name: ${nameResult.error}`);
+                }
+
+                // Update the source save file data again
+                this.sourceSaveFile = nameResult.updatedSaveFile;
+            }
+
             // Refresh the source saves list to show updated data
             const sourceSavesListElement = document.getElementById('source-saves-list');
             this.renderSavesList(sourceSavesListElement, this.sourceSaveFile.saves, 'source');
@@ -635,6 +660,9 @@ class EldenRingSaveManagerUI {
         statInputs.forEach(stat => {
             document.getElementById(`${stat}-input`).value = this.originalStats[stat];
         });
+
+        // Reset character name
+        document.getElementById('character-name-input').value = this.originalCharacterName || '';
 
         // Reset checkboxes
         document.getElementById('god-mode-check').checked = false;

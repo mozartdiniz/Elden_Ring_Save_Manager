@@ -330,4 +330,33 @@ function setupIpcHandlers() {
             return { success: false, error: error.message };
         }
     });
+
+    // Get character name
+    ipcMain.handle('get-character-name', async (event, { saveFile, slotIndex }) => {
+        try {
+            const buffer = require('fs').readFileSync(saveFile.filePath);
+            const name = saveManager.getCharacterName(buffer, slotIndex);
+            return { success: true, name };
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    });
+
+    // Set character name
+    ipcMain.handle('set-character-name', async (event, { saveFile, slotIndex, newName }) => {
+        try {
+            const buffer = require('fs').readFileSync(saveFile.filePath);
+            const modifiedBuffer = saveManager.setCharacterName(buffer, slotIndex, newName);
+
+            // Write back to file
+            require('fs').writeFileSync(saveFile.filePath, modifiedBuffer);
+
+            // Reload the save file to get updated data
+            const reloadedSaveFile = saveManager.loadSaveFile(saveFile.filePath);
+
+            return { success: true, updatedSaveFile: reloadedSaveFile };
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    });
 }

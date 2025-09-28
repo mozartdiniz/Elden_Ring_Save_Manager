@@ -20,6 +20,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
     getCharacterStats: (data) => ipcRenderer.invoke('get-character-stats', data),
     setCharacterStats: (data) => ipcRenderer.invoke('set-character-stats', data),
 
+    // Character name operations
+    getCharacterName: (data) => ipcRenderer.invoke('get-character-name', data),
+    setCharacterName: (data) => ipcRenderer.invoke('set-character-name', data),
+
     // Utility functions
     formatPlayTime: (seconds) => ipcRenderer.invoke('format-play-time', seconds)
 });
