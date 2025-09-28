@@ -16,6 +16,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
     copySave: (data) => ipcRenderer.invoke('copy-save', data),
     extractSave: (data) => ipcRenderer.invoke('extract-save', data),
 
+    // Character stats operations
+    getCharacterStats: (data) => ipcRenderer.invoke('get-character-stats', data),
+    setCharacterStats: (data) => ipcRenderer.invoke('set-character-stats', data),
+
     // Utility functions
     formatPlayTime: (seconds) => ipcRenderer.invoke('format-play-time', seconds)
 });

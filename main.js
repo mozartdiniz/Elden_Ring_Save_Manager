@@ -301,4 +301,33 @@ function setupIpcHandlers() {
     ipcMain.handle('format-play-time', (event, seconds) => {
         return saveManager.formatPlayTime(seconds);
     });
+
+    // Get character stats
+    ipcMain.handle('get-character-stats', async (event, { saveFile, slotIndex }) => {
+        try {
+            const buffer = require('fs').readFileSync(saveFile.filePath);
+            const stats = saveManager.getCharacterStats(buffer, slotIndex);
+            return { success: true, stats };
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    });
+
+    // Set character stats
+    ipcMain.handle('set-character-stats', async (event, { saveFile, slotIndex, newStats, options }) => {
+        try {
+            const buffer = require('fs').readFileSync(saveFile.filePath);
+            const modifiedBuffer = saveManager.setCharacterStats(buffer, slotIndex, newStats, options);
+
+            // Write back to file
+            require('fs').writeFileSync(saveFile.filePath, modifiedBuffer);
+
+            // Reload the save file to get updated data
+            const reloadedSaveFile = saveManager.loadSaveFile(saveFile.filePath);
+
+            return { success: true, updatedSaveFile: reloadedSaveFile };
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    });
 }
