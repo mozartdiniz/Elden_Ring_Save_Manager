@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';">
+    <title>Elden Ring Save Manager</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>⚔️ Elden Ring Save Manager</h1>
+            <p class="subtitle">Manage your Elden Ring save files with ease</p>
+        </header>
+
+        <main class="main-content">
+            <!-- File Selection Section -->
+            <div class="file-section">
+                <div class="file-card">
+                    <h3>📁 Source Save File</h3>
+                    <div class="file-info">
+                        <span id="source-file-name" class="file-name">No file selected</span>
+                        <button id="load-source-btn" class="btn btn-primary">Load Source</button>
+                    </div>
+                    <div id="source-file-details" class="file-details hidden"></div>
+                </div>
+
+                <div class="file-card">
+                    <h3>📁 Target Save File</h3>
+                    <div class="file-info">
+                        <span id="target-file-name" class="file-name">No file selected</span>
+                        <button id="load-target-btn" class="btn btn-primary">Load Target</button>
+                    </div>
+                    <div id="target-file-details" class="file-details hidden"></div>
+                </div>
+            </div>
+
+            <!-- Save Management Section -->
+            <div class="saves-section">
+                <div class="saves-card">
+                    <h3>💾 Source Saves</h3>
+                    <div id="source-saves-list" class="saves-list">
+                        <p class="no-saves">Load a source file to view saves</p>
+                    </div>
+                </div>
+
+                <div class="saves-card">
+                    <h3>💾 Target Saves</h3>
+                    <div id="target-saves-list" class="saves-list">
+                        <p class="no-saves">Load a target file to view saves</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions Section -->
+            <div class="actions-section">
+                <div class="actions-card">
+                    <h3>🔧 Actions</h3>
+                    <div class="button-group">
+                        <button id="copy-save-btn" class="btn btn-success" disabled>Copy Save</button>
+                        <button id="extract-save-btn" class="btn btn-accent" disabled>Extract Save</button>
+                        <button id="refresh-btn" class="btn btn-secondary">Refresh</button>
+                    </div>
+                    <div id="status-area" class="status-area"></div>
+                </div>
+            </div>
+
+            <!-- Copy Dialog -->
+            <div id="copy-dialog" class="dialog hidden">
+                <div class="dialog-content">
+                    <h3>Copy Save</h3>
+                    <p>Select source save slot:</p>
+                    <div id="source-slot-selection" class="slot-selection"></div>
+                    <p>Select target save slot:</p>
+                    <div id="target-slot-selection" class="slot-selection"></div>
+                    <div class="dialog-buttons">
+                        <button id="confirm-copy-btn" class="btn btn-success">Copy</button>
+                        <button id="cancel-copy-btn" class="btn btn-secondary">Cancel</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Extract Dialog -->
+            <div id="extract-dialog" class="dialog hidden">
+                <div class="dialog-content">
+                    <h3>Extract Save</h3>
+                    <p>Select save slot to extract:</p>
+                    <div id="extract-slot-selection" class="slot-selection"></div>
+                    <div class="dialog-buttons">
+                        <button id="confirm-extract-btn" class="btn btn-accent">Extract</button>
+                        <button id="cancel-extract-btn" class="btn btn-secondary">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>Built for Elden Ring save management</p>
+            <p class="version">Version 1.0.0</p>
+        </footer>
+    </div>
+
+    <script src="renderer.js"></script>
+</body>
+
+</html>
